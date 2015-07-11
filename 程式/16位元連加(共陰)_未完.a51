@@ -1,0 +1,7 @@
+		MOV	R1,#01H
+AD:		ADD	A,R1
+		INC	R1
+		CJNE	R1,#24,AD
+		MOV	P0,A
+		DA	A
+		MOV	P1,A

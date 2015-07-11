@@ -1,0 +1,70 @@
+;==========外部中斷之基礎實習=========
+	
+	ORG	00H
+	JMP	START
+	ORG	03H			;執行外部中斷INT0
+	JMP	LEFT1			;執行外部中斷左旋
+	ORG	13H			;執行外部中斷INT1
+	JMP	RIGHT1		;執行外部中斷右旋
+
+START:
+	MOV	IE,#10000101B	;設定中斷項目
+	MOV	IP,#10000100B	;設定中斷優先權
+	MOV	TCON,#00H		;設定中斷觸發型式
+	MOV	SP,#70		;設定堆疊存放起始位址
+
+MAIN:					;主程式-逐步加一點亮
+	INC	P0
+	CALL	DELAY
+	JMP	MAIN
+
+LEFT1:				;外部中斷左旋
+	PUSH	P0
+	PUSH	R4
+	PUSH	R5
+	PUSH	R6
+	MOV	P0,#0H
+	CALL	DELAY
+	MOV	A,#01H
+	MOV	R1,#08
+LEFT:
+	MOV	P0,A
+	CALL	DELAY
+	RL	A
+	DJNZ	R1,LEFT
+	MOV	P0,#0H
+	POP	R6
+	POP	R5
+	POP	R4
+	POP	P0
+	RETI
+
+RIGHT1:				;執行外部中斷右旋
+	PUSH	P0
+	PUSH	R4
+	PUSH	R5
+	PUSH	R6
+	MOV	P0,#0H
+	CALL	DELAY
+	MOV	A,#80H
+	MOV	R1,#08
+RIGHT:
+	MOV	P0,A
+	CALL	DELAY
+	RR	A
+	DJNZ	R1,RIGHT
+	MOV	P0,#0H
+	POP	R6
+	POP	R5
+	POP	R4
+	POP	P0
+	RETI
+
+DELAY:				;延遲程式
+	MOV	R4,#02
+DL1:	MOV	R5,#100
+DL2:	MOV	R6,#200
+DL3:	DJNZ	R6,DL3
+	DJNZ	R5,DL2
+	DJNZ	R4,DL1
+	RET
